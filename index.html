@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <style>
+            body {
+                background-color: whitesmoke;
+            }
+            .box {
+                line-height: 14vh;
+                text-align: center;
+                font-size: 450%;
+                margin-bottom: 1vh;
+                width: 18vw;
+                color: darkslategray;
+                font-family: sans-serif;
+                border-radius: 20px;
+                background: whitesmoke;
+                box-shadow:  10px 10px 30px #bebebe,
+                            -10px -10px 30px #ffffff;
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Safari */
+                -khtml-user-select: none; /* Konqueror HTML */
+                -moz-user-select: none; /* Old versions of Firefox */
+                    -ms-user-select: none; /* Internet Explorer/Edge */
+                        user-select: none; /* Non-prefixed version, currently
+                                            supported by Chrome, Edge, Opera and Firefox */
+            }
+            .wrapper {
+                display: grid;
+                grid-auto-flow: column;
+                justify-content: space-evenly;
+                align-content: space-evenly;
+                height: 100%;
+                background-color: inherit;
+                /* background-color: rgb(46, 46, 46); */
+            }
+            .free {
+                font-size: 150%;
+                animation-name: spin;
+                animation-duration: 5000ms;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear; 
+                /* transform: rotate(3deg); */
+                /* transform: rotate(0.3rad);/ */
+                /* transform: rotate(3grad); */ 
+                /* transform: rotate(.03turn);  */
+            }
+
+            @keyframes spin {
+                from {
+                    transform:rotate(0deg);
+                }
+                to {
+                    transform:rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            {{range $i, $row := .Cells}}
+            <div>
+                {{range $j, $cell := $row}}
+                    <div class="box" id="i{{$i}}j{{$j}}" onclick="markSelected(this.id)">{{$cell}}</div>
+                {{end}}
+            </div>
+            {{end}}
+        </div>
+        <script>
+            var boxes = document.getElementsByClassName("box")
+            for (var i = 0; i < boxes.length; i++) {
+                const box = boxes.item(i)
+
+                box.style.backgroundColor = "whitesmoke"
+                var selected = JSON.parse(localStorage.getItem("selected"))
+                if (selected === null) {
+                    selected = []
+                }
+                if (selected.includes(box.id)) {
+                    box.style.backgroundColor = "mediumspringgreen"
+                }
+
+                if (box.id === "i2j2") {
+                    box.style.backgroundColor = "mediumspringgreen"
+                    // thisElement = document.getElementById(box.id);
+                    box.addEventListener("touchstart", touchstart, false);
+                    box.addEventListener("touchend", touchend, false);
+                    box.addEventListener("mousedown", touchstart, false);
+                    box.addEventListener("mouseup", touchend, false);
+                    box.removeAttribute("onclick");
+                    box.textContent = ''
+                    freespace = document.createElement("div");
+                    freespace.textContent = "💸"
+                    freespace.classList.add("free")
+                    box.appendChild(freespace)
+                }
+                // console.log(box.textContent)
+                if (box.textContent.includes("♦") || box.textContent.includes("♥")) {
+                    box.style.color = "salmon"
+                }
+            }
+
+            function markSelected(id) {
+                var selected = JSON.parse(localStorage.getItem("selected"))
+                if (selected === null) {
+                    selected = []
+                }
+                if (selected.includes(id)) {
+                    selected.splice(selected.indexOf(id), 1);
+                } else {
+                    selected.push(id)
+                }
+                localStorage.setItem("selected", JSON.stringify(selected))
+                thisElement = document.getElementById(id);
+                thisElement.style.backgroundColor === "whitesmoke" ? thisElement.style.backgroundColor = "mediumspringgreen": thisElement.style.backgroundColor = "whitesmoke"
+            }
+
+            var onlongtouch; 
+            var timer;
+            var touchduration = 3000;
+
+            function touchstart() {
+                console.log('touchdown')
+                timer = setTimeout(onlongtouch, touchduration); 
+            };
+
+            function touchend() {
+                console.log('touchup')
+                //stops short touches from firing the event
+                if (timer){
+                    clearTimeout(timer);
+                }; // clearTimeout, not cleartimeout..
+            };
+
+            onlongtouch = function() {
+                document.cookie = "seed= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
+                localStorage.removeItem("selected");
+                location.reload();
+            };
+        </script>
+    </body>
+</html>
