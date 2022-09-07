@@ -31,7 +31,6 @@
                 align-content: space-evenly;
                 height: 100%;
                 background-color: inherit;
-                /* background-color: rgb(46, 46, 46); */
             }
             .free {
                 font-size: 150%;
@@ -39,10 +38,6 @@
                 animation-duration: 5000ms;
                 animation-iteration-count: infinite;
                 animation-timing-function: linear; 
-                /* transform: rotate(3deg); */
-                /* transform: rotate(0.3rad);/ */
-                /* transform: rotate(3grad); */ 
-                /* transform: rotate(.03turn);  */
             }
             .red {
                 color: transparent;
@@ -87,7 +82,7 @@
 
                 var selected = JSON.parse(localStorage.getItem("selected"))
                 if (selected === null) {
-                    selected = []
+                    selected = ["i2j2"]
                 }
                 if (selected.includes(box.id)) {
                     box.style.backgroundColor = "mediumspringgreen"
@@ -108,13 +103,13 @@
                     box.appendChild(freespace)
                 }
                 
-                
+                calculate()
             }
 
             function markSelected(id) {
                 var selected = JSON.parse(localStorage.getItem("selected"))
                 if (selected === null) {
-                    selected = []
+                    selected = ["i2j2"]
                 }
                 if (selected.includes(id)) {
                     selected.splice(selected.indexOf(id), 1);
@@ -124,6 +119,54 @@
                 localStorage.setItem("selected", JSON.stringify(selected))
                 thisElement = document.getElementById(id);
                 thisElement.style.backgroundColor === "whitesmoke" ? thisElement.style.backgroundColor = "mediumspringgreen": thisElement.style.backgroundColor = "whitesmoke"
+                calculate()
+            }
+
+            function calculate() {
+                var selected = JSON.parse(localStorage.getItem("selected"))
+                let counts = {i0: 0, i1: 0, i2: 0, i3: 0, i4: 0, j0: 0, j1: 0, j2: 0, j3: 0, j4: 0, }
+                let boxes = document.getElementsByClassName("box");
+                for (const box of boxes) {
+                    let i = box.id.slice(0,2);
+                    let j = box.id.slice(2,4);
+                    if (selected.includes(box.id)) {
+                        counts[i] += 1;
+                        counts[j] += 1;
+                    }
+                }
+                /// highlight winners
+                for (const [k,v] of Object.entries(counts)) {
+                    if (v === 5) {
+                        // console.log('BINGO at ' + k )
+                        for (const box of boxes) {
+                            if (box.id.includes(k)) {
+                                thisElement = document.getElementById(box.id);
+                                thisElement.style.backgroundColor = "salmon";
+                            }
+                        }
+                    }
+                }
+                // diagonals
+                if (selected.includes('i0j0') && selected.includes('i1j1') && selected.includes('i3j3') && selected.includes('i4j4')) {
+                    thisElement = document.getElementById('i0j0');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i1j1');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i3j3');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i4j4');
+                    thisElement.style.backgroundColor = "salmon";
+                }
+                if (selected.includes('i0j4') && selected.includes('i1j3') && selected.includes('i3j1') && selected.includes('i4j0')) {
+                    thisElement = document.getElementById('i0j4');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i1j3');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i3j1');
+                    thisElement.style.backgroundColor = "salmon";
+                    thisElement = document.getElementById('i4j0');
+                    thisElement.style.backgroundColor = "salmon";
+                }
             }
 
             var onlongtouch; 
@@ -145,7 +188,8 @@
 
             onlongtouch = function() {
                 document.cookie = "seed= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-                localStorage.removeItem("selected");
+                // localStorage.removeItem("selected");
+                localStorage.setItem("selected", JSON.stringify(["i2j2"]));
                 location.reload();
             };
         </script>
