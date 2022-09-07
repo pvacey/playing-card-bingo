@@ -44,6 +44,14 @@
                 /* transform: rotate(3grad); */ 
                 /* transform: rotate(.03turn);  */
             }
+            .red {
+                color: transparent;
+                text-shadow: 0 0 indianred;
+            }
+            .black {
+                color: transparent;
+                text-shadow: 0 0 darkslategray;
+            }
 
             @keyframes spin {
                 from {
@@ -71,6 +79,12 @@
                 const box = boxes.item(i)
 
                 box.style.backgroundColor = "whitesmoke"
+                if (box.textContent.includes("♦") || box.textContent.includes("♥")) {
+                    box.classList.add("red")
+                } else {
+                    box.classList.add("black")
+                }
+
                 var selected = JSON.parse(localStorage.getItem("selected"))
                 if (selected === null) {
                     selected = []
@@ -81,22 +95,20 @@
 
                 if (box.id === "i2j2") {
                     box.style.backgroundColor = "mediumspringgreen"
-                    // thisElement = document.getElementById(box.id);
                     box.addEventListener("touchstart", touchstart, false);
                     box.addEventListener("touchend", touchend, false);
                     box.addEventListener("mousedown", touchstart, false);
                     box.addEventListener("mouseup", touchend, false);
                     box.removeAttribute("onclick");
                     box.textContent = ''
+                    box.classList.remove("black")
                     freespace = document.createElement("div");
                     freespace.textContent = "💸"
                     freespace.classList.add("free")
                     box.appendChild(freespace)
                 }
-                // console.log(box.textContent)
-                if (box.textContent.includes("♦") || box.textContent.includes("♥")) {
-                    box.style.color = "salmon"
-                }
+                
+                
             }
 
             function markSelected(id) {
