@@ -1,12 +1,16 @@
 package main
 
 import (
+	_ "embed"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"text/template"
 	"time"
 )
+
+//go:embed index.html
+var indexTemplate string
 
 var deck = []string{
 	"A♠", "2♠", "3♠", "4♠", "5♠", "6♠", "7♠", "8♠", "9♠", "10♠", "J♠", "Q♠", "K♠",
@@ -63,7 +67,7 @@ func generatePageData(seed int64) PageData {
 }
 
 func getPage(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("index.html"))
+	tmpl, _ := template.New("index").Parse(indexTemplate)
 
 	// we need a seed value for generating a random deck
 	var seed int64
