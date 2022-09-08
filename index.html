@@ -105,6 +105,7 @@
             var timer;
             var touchduration = 3000;
             var airhorn = new Audio('https://www.freesoundslibrary.com/wp-content/uploads/2020/04/mlg-air-horn.mp3');
+            var icons = ["💸","👌","💵","🎲","💯","🎉","💰"]
 
             const touchstart = () => {
                 timer = setTimeout(onlongtouch, touchduration); 
@@ -243,6 +244,13 @@
                 return selected;
             }
 
+            const cycleIconElement = (el) => {
+                let idx = icons.indexOf(el.textContent);
+                idx = idx + 1;
+                if (idx >= icons.length) { idx = 0 } 
+                el.textContent = icons[idx];
+            };
+
 
             // loop over all of the boxes and decorate them with CSS classes based on some conditions
             let selected = getSelected();
@@ -264,12 +272,13 @@
             freespace = document.getElementById("i2j2");
             freespace.classList.remove("black");
             freespace.classList.add("selected");
-            freespace.removeAttribute("onclick");
+            // freespace.removeAttribute("onclick");
             freespace.textContent = '';
-            spinningmoney = document.createElement("div");
-            spinningmoney.textContent = "💸";
-            spinningmoney.classList.add("free");
-            freespace.appendChild(spinningmoney);
+            iconElement = document.createElement("div");
+            iconElement.textContent = icons[0];
+            iconElement.classList.add("free");
+            freespace.appendChild(iconElement);
+            freespace.onclick = () => {cycleIconElement(iconElement)};
 
             // add listeners for resetting the game by pressing and holding the freespace
             freespace.addEventListener("touchstart", touchstart, false);
