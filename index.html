@@ -32,18 +32,11 @@
                 height: 100%;
                 background-color: inherit;
             }
-            .free {
-                font-size: 150%;
-                animation-name: spin;
-                animation-duration: 5000ms;
-                animation-iteration-count: infinite;
-                animation-timing-function: linear; 
-            }
+            
             .selected {
                 background-color: mediumspringgreen;
             }
-            .winner {   
-                /* background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #000000); */
+            .winner { 
                 background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8);
                 background-size: 200% 300%;
 
@@ -52,28 +45,26 @@
                 -o-animation: rainbow 3s ease infinite;
                 animation: rainbow 3s ease infinite;
             }
-
-                @-webkit-keyframes rainbow {
-                    0%{background-position:0% 100%}
-                    50%{background-position:100% 0%}
-                    100%{background-position:0% 100%}
-                }
-                @-moz-keyframes rainbow {
-                    0%{background-position:0% 100%}
-                    50%{background-position:100% 0%}
-                    100%{background-position:0% 100%}
-                }
-                @-o-keyframes rainbow {
-                    0%{background-position:0% 100%}
-                    50%{background-position:100% 0%}
-                    100%{background-position:0% 100%}
-                }
-                @keyframes rainbow { 
-                    0%{background-position:0% 100%}
-                    50%{background-position:100% 0%}
-                    100%{background-position:0% 100%}
-                }
-
+            @-webkit-keyframes rainbow {
+                0%{background-position:0% 100%}
+                50%{background-position:100% 0%}
+                100%{background-position:0% 100%}
+            }
+            @-moz-keyframes rainbow {
+                0%{background-position:0% 100%}
+                50%{background-position:100% 0%}
+                100%{background-position:0% 100%}
+            }
+            @-o-keyframes rainbow {
+                0%{background-position:0% 100%}
+                50%{background-position:100% 0%}
+                100%{background-position:0% 100%}
+            }
+            @keyframes rainbow { 
+                0%{background-position:0% 100%}
+                50%{background-position:100% 0%}
+                100%{background-position:0% 100%}
+            }
             .red {
                 color: transparent;
                 text-shadow: 0 0 indianred;
@@ -82,7 +73,13 @@
                 color: transparent;
                 text-shadow: 0 0 darkslategray;
             }
-
+            .free {
+                font-size: 150%;
+                animation-name: spin;
+                animation-duration: 5000ms;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear; 
+            }
             @keyframes spin {
                 from {
                     transform:rotate(0deg);
@@ -98,73 +95,43 @@
             {{range $i, $row := .Cells}}
             <div>
                 {{range $j, $cell := $row}}
-                    <div class="box" id="i{{$i}}j{{$j}}" onclick="markSelected(this.id)">{{$cell}}</div>
+                    <div class="box" id="i{{$i}}j{{$j}}" onclick="toggleSelected(this.id)">{{$cell}}</div>
                 {{end}}
             </div>
             {{end}}
         </div>
         <script>
-            var boxes = document.getElementsByClassName("box")
-            for (var i = 0; i < boxes.length; i++) {
-                const box = boxes.item(i)
+            var onlongtouch; 
+            var timer;
+            var touchduration = 3000;
+            var airhorn = new Audio('https://www.freesoundslibrary.com/wp-content/uploads/2020/04/mlg-air-horn.mp3');
 
-                if (box.textContent.includes("♦") || box.textContent.includes("♥")) {
-                    box.classList.add("red")
-                } else {
-                    box.classList.add("black")
-                }
+            const touchstart = () => {
+                timer = setTimeout(onlongtouch, touchduration); 
+            };
 
-                var selected = JSON.parse(localStorage.getItem("selected"))
-                if (selected === null) {
-                    selected = ["i2j2"]
-                }
-                if (selected.includes(box.id)) {
-                    box.classList.add("selected")
-                }
+            const touchend = () => {
+                //stops short touches from firing the event
+                if (timer){
+                    clearTimeout(timer);
+                };
+            };
 
-                if (box.id === "i2j2") {
-                    box.classList.add("selected")
-                    box.addEventListener("touchstart", touchstart, false);
-                    box.addEventListener("touchend", touchend, false);
-                    box.addEventListener("mousedown", touchstart, false);
-                    box.addEventListener("mouseup", touchend, false);
-                    box.removeAttribute("onclick");
-                    box.textContent = ''
-                    box.classList.remove("black")
-                    freespace = document.createElement("div");
-                    freespace.textContent = "💸"
-                    freespace.classList.add("free")
-                    box.appendChild(freespace)
-                }
-                
-                calculate()
-            }
+            onlongtouch = () => {
+                document.cookie = "seed= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
+                resetSelected();
+                location.reload();
+            };
+           
+            const scoreWinners = () => {
+                // only blast that horn once if you find that this sheet has at least once winning combo
+                let foundWinner = false;
 
-            function blankOut(el) {
-                el.classList.remove("selected");
-                el.classList.remove('winner');
-            }
+                let selected = getSelected();
+                let boxes = document.getElementsByClassName("box")
 
-            function markSelected(id) {
-                var selected = JSON.parse(localStorage.getItem("selected"))
-                if (selected === null) {
-                    selected = ["i2j2"]
-                }
-                if (selected.includes(id)) {
-                    selected.splice(selected.indexOf(id), 1);
-                } else {
-                    selected.push(id)
-                }
-                localStorage.setItem("selected", JSON.stringify(selected))
-                thisElement = document.getElementById(id);
-                thisElement.classList.contains("selected") ? blankOut(thisElement) : thisElement.classList.add("selected")
-                calculate()
-            }
-
-            function calculate() {
-                var selected = JSON.parse(localStorage.getItem("selected"))
+                // count up rows and columns by splitting the ID and keeping tally of those that are selected
                 let counts = {i0: 0, i1: 0, i2: 0, i3: 0, i4: 0, j0: 0, j1: 0, j2: 0, j3: 0, j4: 0, }
-                let boxes = document.getElementsByClassName("box");
                 for (const box of boxes) {
                     let i = box.id.slice(0,2);
                     let j = box.id.slice(2,4);
@@ -172,21 +139,23 @@
                         counts[i] += 1;
                         counts[j] += 1;
                     }
+                    // clear the winner CSS for now in case someone accidently toggeled box on and off
+                    // this will be reapplied again right after this for any combos that win
                     box.classList.remove('winner');
                 }
-                /// highlight winners
+                /// highlight winners if any row or colulmn in this 
                 for (const [k,v] of Object.entries(counts)) {
                     if (v === 5) {
-                        // console.log('BINGO at ' + k )
                         for (const box of boxes) {
                             if (box.id.includes(k)) {
-                                thisElement = document.getElementById(box.id);
-                                thisElement.classList.add('winner');
+                                el = document.getElementById(box.id);
+                                el.classList.add('winner');
+                                foundWinner = true;
                             }
                         }
                     }
                 }
-                // diagonals
+                // diagonal
                 if (selected.includes('i0j0') && selected.includes('i1j1') && selected.includes('i3j3') && selected.includes('i4j4')) {
                     thisElement = document.getElementById('i0j0');
                     thisElement.classList.add('winner');
@@ -198,7 +167,9 @@
                     thisElement.classList.add('winner');
                     thisElement = document.getElementById('i4j4');
                     thisElement.classList.add('winner');
+                    foundWinner = true;
                 }
+                // diagonal
                 if (selected.includes('i0j4') && selected.includes('i1j3') && selected.includes('i3j1') && selected.includes('i4j0')) {
                     thisElement = document.getElementById('i0j4');
                     thisElement.classList.add('winner');
@@ -210,32 +181,102 @@
                     thisElement.classList.add('winner');
                     thisElement = document.getElementById('i4j0');
                     thisElement.classList.add('winner');
+                    foundWinner = true;
+                }
+                // 4 corners
+                if (selected.includes('i0j0') && selected.includes('i4j4') && selected.includes('i4j0') && selected.includes('i0j4')) {
+                    thisElement = document.getElementById('i0j0');
+                    thisElement.classList.add('winner');
+                    thisElement = document.getElementById('i4j4');
+                    thisElement.classList.add('winner');
+                    thisElement = document.getElementById('i4j0');
+                    thisElement.classList.add('winner');
+                    thisElement = document.getElementById('i0j4');
+                    thisElement.classList.add('winner');
+                    foundWinner = true;
+                }
+
+                if (foundWinner) {
+                    // blast that horn they earned it
+                    airhorn.pause();
+                    airhorn.currentTime = 0;
+                    airhorn.play();
                 }
             }
 
-            var onlongtouch; 
-            var timer;
-            var touchduration = 3000;
+            const resetBox = el => {
+                el.classList.remove("selected");
+                el.classList.remove('winner');
+            }
 
-            function touchstart() {
-                console.log('touchdown')
-                timer = setTimeout(onlongtouch, touchduration); 
+            // add or remove the provided box ID to the existing list of selected box IDs in internal storage
+            // adjust the style of the box accordingly
+            const toggleSelected = id => {
+                let selected = getSelected();
+                // if the box ID is in the selected list already, remove it
+                if (selected.includes(id)) {
+                    selected.splice(selected.indexOf(id), 1);
+                } else { // otherwise add it 
+                    selected.push(id);
+                }
+                setSelected(selected);
+                // toggle the style on or off
+                let box = document.getElementById(id);
+                box.classList.contains("selected") ? resetBox(box) : box.classList.add("selected");
+                // check for winners
+                scoreWinners();
+            }
+            
+            const resetSelected = () => {
+                const initVal = ["i2j2"];
+                setSelected(initVal);
+                return initVal;
             };
 
-            function touchend() {
-                console.log('touchup')
-                //stops short touches from firing the event
-                if (timer){
-                    clearTimeout(timer);
-                }; // clearTimeout, not cleartimeout..
-            };
+            const setSelected = selectedValues => localStorage.setItem("selected", JSON.stringify(selectedValues));
+            
+            const getSelected = () => {
+                let selected = JSON.parse(localStorage.getItem("selected"));
+                if (selected === null) {
+                    selected = resetSelected();
+                }
+                return selected;
+            }
 
-            onlongtouch = function() {
-                document.cookie = "seed= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-                // localStorage.removeItem("selected");
-                localStorage.setItem("selected", JSON.stringify(["i2j2"]));
-                location.reload();
-            };
+
+            // loop over all of the boxes and decorate them with CSS classes based on some conditions
+            let selected = getSelected();
+            for (const box of document.getElementsByClassName("box")) {
+                // set the color class based no suit
+                if (box.textContent.includes("♦") || box.textContent.includes("♥")) {
+                    box.classList.add("red");
+                } else {
+                    box.classList.add("black");
+                }
+                //highlight any that are already marked as selected in local storage
+                if (selected.includes(box.id)) {
+                    box.classList.add("selected");
+                }
+                scoreWinners()
+            }
+
+            // make the freespace really obnoxious
+            freespace = document.getElementById("i2j2");
+            freespace.classList.remove("black");
+            freespace.classList.add("selected");
+            freespace.removeAttribute("onclick");
+            freespace.textContent = '';
+            spinningmoney = document.createElement("div");
+            spinningmoney.textContent = "💸";
+            spinningmoney.classList.add("free");
+            freespace.appendChild(spinningmoney);
+
+            // add listeners for resetting the game by pressing and holding the freespace
+            freespace.addEventListener("touchstart", touchstart, false);
+            freespace.addEventListener("touchend", touchend, false);
+            freespace.addEventListener("mousedown", touchstart, false);
+            freespace.addEventListener("mouseup", touchend, false);
+
         </script>
     </body>
 </html>
